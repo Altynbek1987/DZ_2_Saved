@@ -4,39 +4,59 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-
     TextView result;
     Double firstValues, secondValues, result_op;
-    String opiration;
-    String savedString;
+    String operation;
+    Double number1;
+    Double number2;
+    String operator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         result = findViewById(R.id.result_field);
-        if (savedInstanceState !=null){
-            savedString =  savedInstanceState.getString("saved_string ");
+        if (savedInstanceState != null){
+            number1 = savedInstanceState.getDouble("number1");
+            number2 = savedInstanceState.getDouble("number2");
+            operator = savedInstanceState.getString("operator");
+            firstValues = number1;
+            secondValues = number2;
+            operation = operator;
         }
-        Log.d("calkuly","onCreate");
-        Log.d("calkuly","savedString " + savedString);
+        Log.d("calkuly", "onCreate");
     }
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d("calkuly","onSaveInstanceState");
-        outState.putString("saved_string ",savedString);
+    protected void onStart() {
+        super.onStart();
+        Log.d("calkuly", "onStart");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("calkuly", "onResume");
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("calkuly", "onStop");
+    }
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("calkuly", "onRestart");
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("calkuly", "onDestroy");
     }
     public void onNumberClick(View view) {
-        Log.d("calkuly","Successfully saved " + savedString);
         switch (view.getId()) {
             case R.id.seven:
                 result.append("7");
@@ -68,15 +88,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.zero:
                 result.append("0");
                 break;
-            case R.id.point:
-                firstValues = Double.valueOf(result.getText().toString());
-                result.setText(firstValues + ".");
-                opiration = ".";
-                break;
             case R.id.clear:
-                result.setText(null);
+                result.setText("");
                 break;
-
+            case R.id.point:
+                String string = (result.getText().toString().trim());
+                if (string.length() > 0) {
+                    result.setText(string + ".");
+                    break;
+                }
             case R.id.back:
                 String str;
                 str = result.getText().toString();
@@ -87,102 +107,75 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void onOperationClick(View view) {
-        savedString = " new saved String ";
-        Log.d("calkuly","Successfully saved " +savedString);
         switch (view.getId()) {
             case R.id.plus:
                 firstValues = Double.valueOf(result.getText().toString());
                 result.setText(firstValues + "+");
-                opiration = "+";
-                break;
-            case R.id.minus:
-                firstValues = Double.valueOf(result.getText().toString());
-                result.setText(firstValues + "-");
-                opiration = "-";
-                break;
-            case R.id.multiplication:
-                firstValues = Double.valueOf(result.getText().toString());
-                result.setText(firstValues + "*");
-                opiration = "*";
+                operation = "+";
                 break;
             case R.id.division:
                 firstValues = Double.valueOf(result.getText().toString());
                 result.setText(firstValues + "/");
-                opiration = "/";
+                operation = "/";
+                break;
+            case R.id.minus:
+                firstValues = Double.valueOf(result.getText().toString());
+                result.setText(firstValues + "-");
+                operation = "-";
+                break;
+            case R.id.multiplication:
+                firstValues = Double.valueOf(result.getText().toString());
+                result.setText(firstValues + "*");
+                operation = "*";
                 break;
             case R.id.equally:
-                if (opiration != null) {
-                    String two = result.getText().toString().replace(firstValues.toString() + opiration, " ");
+                if (operation != null) {
+                    String two = result.getText().toString().replace(firstValues.toString() + operation, "");
                     secondValues = Double.valueOf(two);
-                    switch (opiration) {
+                    switch (operation) {
                         case "+":
-                            plus();
+                            plusOperation();
                             break;
-
-                        case "-":
-                            minus();
-                            break;
-
-                        case "*":
-                            multiplication();
-                            break;
-
                         case "/":
-                            division();
+                            divisionOperation();
+                            break;
+                        case "-":
+                            minusOperation();
+                            break;
+                        case "*":
+                            multiplicationOperation();
                             break;
                     }
                 }
-                break;
-
         }
     }
-
-    public void plus() {
+    public void plusOperation() {
         result_op = firstValues + secondValues;
-        result.setText(firstValues + "+" + secondValues + "=" + result_op);
+        result.setText(result_op.toString());
     }
-
-    public void minus() {
-        result_op = firstValues - secondValues;
-        result.setText(firstValues + "-" + secondValues + "=" + result_op);
-    }
-
-    public void multiplication() {
-        result_op = firstValues * secondValues;
-        result.setText(firstValues + "*" + secondValues + "=" + result_op);
-    }
-    public void division(){
+    public void divisionOperation() {
         result_op = firstValues / secondValues;
-        result.setText(firstValues + "/" + secondValues + "=" + result_op);
+        result.setText(result_op.toString());
+    }
+    public void minusOperation() {
+        result_op = firstValues - secondValues;
+        result.setText(result_op.toString());
+    }
+    public void multiplicationOperation() {
+        result_op = firstValues * secondValues;
+        result.setText(result_op.toString());
     }
     @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("calkuly","onStart");
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (firstValues != null){
+            outState.putDouble("number1", firstValues);
+        }
+        if (secondValues != null){
+            outState.putDouble("number2", secondValues);
+        }
+        if (operation != null){
+            outState.putString("operator", operation);
+        }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("calkuly","onResume");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d("calkuly","onStop");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d("calkuly","onRestart");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d("calkuly","onDestroy");
-    }
-
 }
